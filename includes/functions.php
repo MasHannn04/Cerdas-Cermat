@@ -104,15 +104,54 @@ function current_match_for_event(int $eventId): ?array
 {
     $statement = db()->prepare(
         'SELECT m.*, r.name AS round_name, r.correct_score, r.wrong_score, r.answer_seconds,
-                e.name AS event_name, e.location
+                e.id AS event_id, e.name AS event_name, e.location, e.status AS event_status,
+                (SELECT COUNT(*) FROM match_teams mt WHERE mt.match_id = m.id) AS team_count
          FROM matches m
          JOIN rounds r ON r.id = m.round_id
          JOIN events e ON e.id = r.event_id
-         WHERE r.event_id = ? AND m.status <> \'finished\'
+         WHERE r.event_id = ? AND e.status = \'active\' AND m.status <> \'finished\'
          ORDER BY m.id DESC LIMIT 1'
     );
     $statement->execute([$eventId]);
     $match = $statement->fetch();
+
+    return $match ?: null;
+}
+
+function current_active_match(): ?array
+{
+    $activeEventId = active_event_id();
+    $pdo = db();
+
+    if ($activeEventId) {
+        $stmt = $pdo->prepare(
+            'SELECT m.*, r.name AS round_name, r.correct_score, r.wrong_score, r.answer_seconds,
+                    e.id AS event_id, e.name AS event_name, e.location, e.event_date, e.status AS event_status,
+                    (SELECT COUNT(*) FROM match_teams mt WHERE mt.match_id = m.id) AS team_count
+             FROM matches m
+             JOIN rounds r ON r.id = m.round_id
+             JOIN events e ON e.id = r.event_id
+             WHERE e.id = ? AND e.status = \'active\' AND m.status <> \'finished\'
+             ORDER BY m.id DESC LIMIT 1'
+        );
+        $stmt->execute([$activeEventId]);
+        $match = $stmt->fetch();
+        if ($match) {
+            return $match;
+        }
+    }
+
+    $stmt = $pdo->query(
+        'SELECT m.*, r.name AS round_name, r.correct_score, r.wrong_score, r.answer_seconds,
+                e.id AS event_id, e.name AS event_name, e.location, e.event_date, e.status AS event_status,
+                (SELECT COUNT(*) FROM match_teams mt WHERE mt.match_id = m.id) AS team_count
+         FROM matches m
+         JOIN rounds r ON r.id = m.round_id
+         JOIN events e ON e.id = r.event_id
+         WHERE e.status = \'active\' AND m.status <> \'finished\'
+         ORDER BY m.id DESC LIMIT 1'
+    );
+    $match = $stmt->fetch();
 
     return $match ?: null;
 }
@@ -137,7 +176,7 @@ function match_payload(int $matchId): ?array
     }
 
     $teamsStatement = db()->prepare(
-        'SELECT t.id, t.name, mt.score, mt.display_order
+        'SELECT t.id, t.name, t.members, mt.score, mt.display_order
          FROM match_teams mt
          JOIN teams t ON t.id = mt.team_id
          WHERE mt.match_id = ?

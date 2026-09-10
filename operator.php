@@ -82,9 +82,12 @@ require __DIR__ . '/includes/header.php';
             <h1>Siapkan babak berikutnya</h1>
             <p><?= e($event['name']) ?> memiliki <?= $teamCount ?> regu aktif.</p>
         </div>
-        <?php if ($lastFinishedMatch): ?>
-            <a class="button button-secondary" href="/results.php?match_id=<?= (int) $lastFinishedMatch['id'] ?>">Lihat hasil terakhir</a>
-        <?php endif; ?>
+        <div class="split-heading-actions">
+            <?php if ($lastFinishedMatch): ?>
+                <a class="button button-secondary" href="/results.php?match_id=<?= (int) $lastFinishedMatch['id'] ?>">Lihat hasil terakhir</a>
+            <?php endif; ?>
+            <a class="button button-secondary" href="/" target="_blank" rel="noopener">Landing Page ↗</a>
+        </div>
     </header>
 
     <?php if (!$rounds || $teamCount < 2): ?>
@@ -125,10 +128,14 @@ require __DIR__ . '/includes/header.php';
     <div class="operator-console" data-match-id="<?= (int) $matchData['id'] ?>" data-csrf="<?= e(csrf_token()) ?>">
         <header class="console-header">
             <div>
-                <span class="eyebrow"><?= e($matchData['event_name']) ?></span>
+                <div class="match-meta-pill">
+                    <span class="match-id-chip">ID Pertandingan: <strong>#<?= (int) $matchData['id'] ?></strong></span>
+                    <span class="eyebrow"><?= e($matchData['event_name']) ?></span>
+                </div>
                 <h1><?= e($matchData['round_name']) ?></h1>
             </div>
             <div class="console-header-actions">
+                <a class="button button-secondary" href="/" target="_blank" rel="noopener">Landing Page ↗</a>
                 <a class="button button-secondary" href="/scoreboard.php?match_id=<?= (int) $matchData['id'] ?>" target="_blank" rel="noopener">Buka layar publik</a>
                 <a class="button button-secondary" href="/buzzer.php?match_id=<?= (int) $matchData['id'] ?>" target="_blank" rel="noopener">Buka halaman regu</a>
             </div>
@@ -137,7 +144,9 @@ require __DIR__ . '/includes/header.php';
         <div class="match-status-strip">
             <span class="status-dot" aria-hidden="true"></span>
             <strong id="match-status-label"><?= e(status_label($matchData['status'])) ?></strong>
+            <span class="strip-match-id">ID: <strong>#<?= (int) $matchData['id'] ?></strong></span>
             <span>Soal <span id="question-number"><?= (int) $matchData['current_question'] ?></span></span>
+            <span class="strip-share-link">Tautan Peserta: <code>/buzzer.php?match_id=<?= (int) $matchData['id'] ?></code></span>
         </div>
 
         <section class="decision-stage" id="decision-stage" data-status="<?= e($matchData['status']) ?>">
@@ -191,6 +200,34 @@ require __DIR__ . '/includes/header.php';
                 </ol>
                 <button class="button button-danger-quiet button-block" type="button" data-match-action="finish">Akhiri pertandingan</button>
             </aside>
+        </div>
+
+        <!-- Pop-up Modal Akhiri Pertandingan -->
+        <div class="modal-overlay" id="finish-modal" hidden>
+            <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="finish-modal-title">
+                <div class="modal-header">
+                    <div class="modal-icon-wrap" aria-hidden="true">⚠️</div>
+                    <div>
+                        <h3 id="finish-modal-title">Akhiri Pertandingan & Kunci Skor?</h3>
+                        <p class="modal-subtitle">Skor pertandingan babak ini akan dikunci permanen dan diarsipkan ke rekap juara.</p>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <span class="modal-summary-title">Urutan Poin Terkini:</span>
+                    <div class="modal-rank-list" id="modal-rank-list">
+                        <!-- Diisi secara dinamis oleh JavaScript -->
+                    </div>
+                    <p class="modal-disclaimer">
+                        Setelah pertandingan diakhiri, bel peserta akan ditutup dan Anda akan langsung dialihkan ke lembar rekapitulasi untuk mencetak hasil dan mengekspor CSV.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="button button-secondary" type="button" id="btn-cancel-finish">Kembali ke Lomba</button>
+                    <button class="button button-danger" type="button" id="btn-confirm-finish">Ya, Kunci & Selesaikan</button>
+                </div>
+            </div>
         </div>
     </div>
 <?php endif; ?>

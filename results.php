@@ -3,14 +3,13 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
-require_auth();
 
 $matchId = filter_input(INPUT_GET, 'match_id', FILTER_VALIDATE_INT);
 $payload = $matchId ? match_payload((int) $matchId) : null;
 
 if (!$payload) {
     flash('error', 'Hasil pertandingan tidak ditemukan.');
-    redirect('/operator.php');
+    redirect(user() ? '/operator.php' : '/');
 }
 
 $rankedTeams = $payload['teams'];
@@ -34,6 +33,7 @@ require __DIR__ . '/includes/header.php';
         <p><?= e($payload['match']['event_name']) ?><?= $payload['match']['location'] ? ', ' . e($payload['match']['location']) : '' ?></p>
     </div>
     <div class="result-actions">
+        <a class="button button-secondary" href="<?= user() ? '/operator.php' : '/' ?>">Kembali</a>
         <button class="button button-secondary" type="button" onclick="window.print()">Cetak hasil</button>
         <a class="button button-primary" href="/export-results.php?match_id=<?= (int) $matchId ?>">Unduh CSV</a>
     </div>
@@ -55,7 +55,12 @@ require __DIR__ . '/includes/header.php';
             ?>
             <li>
                 <span class="rank-number"><?= $rank ?></span>
-                <strong><?= e($team['name']) ?></strong>
+                <div class="rank-team-info">
+                    <strong><?= e($team['name']) ?></strong>
+                    <?php if (!empty($team['members'])): ?>
+                        <small class="team-members-list">Anggota: <?= e($team['members']) ?></small>
+                    <?php endif; ?>
+                </div>
                 <span class="rank-score"><?= (int) $team['score'] ?></span>
             </li>
         <?php endforeach; ?>

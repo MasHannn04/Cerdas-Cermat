@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/includes/auth.php';
-require_auth();
 
 $matchId = filter_input(INPUT_GET, 'match_id', FILTER_VALIDATE_INT);
 $payload = $matchId ? match_payload((int) $matchId) : null;
@@ -25,7 +24,7 @@ fwrite($output, "\xEF\xBB\xBF");
 fputcsv($output, ['Kegiatan', $payload['match']['event_name']], ',', '"', '');
 fputcsv($output, ['Babak', $payload['match']['round_name']], ',', '"', '');
 fputcsv($output, [], ',', '"', '');
-fputcsv($output, ['Peringkat', 'Regu', 'Skor'], ',', '"', '');
+fputcsv($output, ['Peringkat', 'Regu', 'Anggota Tim', 'Skor Akhir'], ',', '"', '');
 
 $rank = 0;
 $position = 0;
@@ -36,6 +35,6 @@ foreach ($teams as $team) {
         $rank = $position;
         $previousScore = (int) $team['score'];
     }
-    fputcsv($output, [$rank, $team['name'], (int) $team['score']], ',', '"', '');
+    fputcsv($output, [$rank, $team['name'], $team['members'] ?? '-', (int) $team['score']], ',', '"', '');
 }
 fclose($output);

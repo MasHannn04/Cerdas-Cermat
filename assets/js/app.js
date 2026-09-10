@@ -46,9 +46,112 @@
             feedback.className = `action-feedback is-${type}`;
         }
 
+        const finishModal = document.querySelector('#finish-modal');
+        const finishRankList = document.querySelector('#modal-rank-list');
+        const btnCancelFinish = document.querySelector('#btn-cancel-finish');
+        const btnConfirmFinish = document.querySelector('#btn-confirm-finish');
+
+        function openFinishModal() {
+            if (!finishModal) {
+                if (window.confirm('Akhiri pertandingan dan kunci hasil saat ini?')) {
+                    executeFinish();
+                }
+                return;
+            }
+
+            // Kumpulkan data ranking regu saat ini dari konsol
+            const teamRows = Array.from(document.querySelectorAll('[data-team-row]'));
+            const teams = teamRows.map((row) => {
+                const name = row.querySelector('h3')?.textContent?.trim() || 'Regu';
+                const scoreText = row.querySelector('.score-value')?.textContent?.trim() || '0';
+                return { name, score: parseInt(scoreText, 10) || 0 };
+            });
+
+            teams.sort((a, b) => b.score - a.score);
+
+            if (finishRankList) {
+                finishRankList.replaceChildren();
+                if (!teams.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'modal-rank-item';
+                    empty.textContent = 'Belum ada regu.';
+                    finishRankList.appendChild(empty);
+                } else {
+                    teams.forEach((t, i) => {
+                        const item = document.createElement('div');
+                        item.className = 'modal-rank-item';
+                        const medal = i === 0 ? '🥇' : (i === 1 ? '🥈' : (i === 2 ? '🥉' : `${i + 1}.`));
+                        item.innerHTML = `<span class="modal-item-medal" aria-hidden="true">${medal}</span><strong>${t.name}</strong><span class="modal-item-score">${t.score} poin</span>`;
+                        finishRankList.appendChild(item);
+                    });
+                }
+            }
+
+            finishModal.removeAttribute('hidden');
+        }
+
+        function closeFinishModal() {
+            if (finishModal) {
+                finishModal.setAttribute('hidden', '');
+            }
+        }
+
+        if (btnCancelFinish) {
+            btnCancelFinish.addEventListener('click', closeFinishModal);
+        }
+
+        if (finishModal) {
+            finishModal.addEventListener('click', (e) => {
+                if (e.target === finishModal) closeFinishModal();
+            });
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !finishModal.hasAttribute('hidden')) {
+                    closeFinishModal();
+                }
+            });
+        }
+
+        async function executeFinish() {
+            if (requestRunning) return;
+            requestRunning = true;
+            if (btnConfirmFinish) {
+                btnConfirmFinish.disabled = true;
+                btnConfirmFinish.textContent = 'Mengunci hasil...';
+            }
+            consoleRoot.classList.add('is-busy');
+
+            try {
+                const result = await fetchJson('/api/finish-match.php', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-Token': csrf },
+                    body: JSON.stringify({ match_id: matchId }),
+                });
+                setFeedback(result.message);
+                closeFinishModal();
+                // Alihkan langsung ke halaman papan hasil & unduh CSV
+                window.location.href = `/results.php?match_id=${matchId}`;
+            } catch (error) {
+                setFeedback(error.message, 'error');
+                if (btnConfirmFinish) {
+                    btnConfirmFinish.disabled = false;
+                    btnConfirmFinish.textContent = 'Ya, Kunci & Selesaikan';
+                }
+            } finally {
+                requestRunning = false;
+                consoleRoot.classList.remove('is-busy');
+            }
+        }
+
+        if (btnConfirmFinish) {
+            btnConfirmFinish.addEventListener('click', executeFinish);
+        }
+
         async function runAction(action) {
             if (requestRunning || !actionConfig[action]) return;
-            if (action === 'finish' && !window.confirm('Akhiri pertandingan dan kunci hasil saat ini?')) return;
+            if (action === 'finish') {
+                openFinishModal();
+                return;
+            }
 
             requestRunning = true;
             consoleRoot.classList.add('is-busy');
@@ -60,10 +163,6 @@
                     body: JSON.stringify({ match_id: matchId, ...payload }),
                 });
                 setFeedback(result.message);
-                if (action === 'finish') {
-                    window.setTimeout(() => window.location.reload(), 700);
-                    return;
-                }
                 await refreshConsole();
             } catch (error) {
                 setFeedback(error.message, 'error');
@@ -74,7 +173,14 @@
         }
 
         document.querySelectorAll('[data-match-action]').forEach((button) => {
-            button.addEventListener('click', () => runAction(button.dataset.matchAction));
+            button.addEventListener('click', () => {
+                const action = button.dataset.matchAction;
+                if (action === 'finish') {
+                    openFinishModal();
+                } else {
+                    runAction(action);
+                }
+            });
         });
 
         document.querySelectorAll('[data-buzz-team]').forEach((button) => {
@@ -316,5 +422,88 @@
 
         refreshBuzzer();
         window.setInterval(refreshBuzzer, 1100);
+    }
+
+    // Sinkronisasi realtime fitur pertandingan berlangsung pada landing page
+    const liveSection = document.querySelector('#live-match');
+    const isLandingPage = document.body.classList.contains('landing-page') || Boolean(liveSection);
+    if (isLandingPage && liveSection) {
+        const navLiveLink = document.querySelector('#nav-live-link');
+        const heroLiveBtn = document.querySelector('#hero-live-btn');
+        const heroHistoryBtn = document.querySelector('#hero-history-btn');
+        const liveRoundBadge = document.querySelector('#live-round-badge');
+        const liveEventName = document.querySelector('#live-event-name');
+        const liveHeading = document.querySelector('#live-heading');
+        const liveMeta = document.querySelector('#live-meta');
+        const liveBtnScoreboard = document.querySelector('#live-btn-scoreboard');
+        const liveBtnBuzzer = document.querySelector('#live-btn-buzzer');
+        const buzzerInput = document.querySelector('#portal-buzzer-match-id');
+        const scoreboardInput = document.querySelector('#portal-scoreboard-match-id');
+
+        async function syncLandingLiveMatch() {
+            try {
+                const response = await fetch('/api/live-match.php', { cache: 'no-store' });
+                if (!response.ok) return;
+                const result = await response.json();
+
+                if (result.ok && result.has_active_match && result.match) {
+                    const match = result.match;
+                    const event = result.event || {};
+
+                    // 1. Tampilkan section live-match jika sebelumnya tersembunyi
+                    liveSection.removeAttribute('hidden');
+                    liveSection.style.display = '';
+
+                    // 2. Perbarui konten teks dan status badge
+                    if (liveRoundBadge) {
+                        liveRoundBadge.textContent = match.status_label || 'Pertandingan Berjalan';
+                    }
+                    if (liveEventName) {
+                        liveEventName.textContent = event.name + (event.location ? ' • ' + event.location : '');
+                    }
+                    if (liveHeading) {
+                        liveHeading.textContent = match.round_name || 'Babak Pertandingan';
+                    }
+                    if (liveMeta) {
+                        liveMeta.innerHTML = `Memainkan <strong id="live-question-num">Soal ke-${match.current_question}</strong> • Diikuti oleh <strong id="live-team-count">${match.team_count} Regu</strong>`;
+                    }
+
+                    // 3. Perbarui tautan dan route tombol aksi panggung & bel peserta
+                    const scoreboardUrl = match.scoreboard_url || `/scoreboard.php?match_id=${match.id}`;
+                    const buzzerUrl = match.buzzer_url || `/buzzer.php?match_id=${match.id}`;
+                    if (liveBtnScoreboard) liveBtnScoreboard.href = scoreboardUrl;
+                    if (liveBtnBuzzer) liveBtnBuzzer.href = buzzerUrl;
+
+                    // 4. Perbarui link navbar & tombol hero
+                    if (navLiveLink) navLiveLink.style.display = '';
+                    if (heroLiveBtn) {
+                        heroLiveBtn.style.display = '';
+                        heroLiveBtn.href = scoreboardUrl;
+                    }
+                    if (heroHistoryBtn) heroHistoryBtn.style.display = 'none';
+
+                    // 5. Perbarui nilai otomatis pada input nomor pertandingan pintu masuk
+                    if (buzzerInput && (!buzzerInput.value || Number(buzzerInput.value) !== match.id)) {
+                        buzzerInput.value = match.id;
+                    }
+                    if (scoreboardInput && (!scoreboardInput.value || Number(scoreboardInput.value) !== match.id)) {
+                        scoreboardInput.value = match.id;
+                    }
+                } else {
+                    // Sembunyikan jika kegiatan nonaktif atau tidak ada pertandingan berjalan
+                    liveSection.setAttribute('hidden', 'hidden');
+                    liveSection.style.display = 'none';
+
+                    if (navLiveLink) navLiveLink.style.display = 'none';
+                    if (heroLiveBtn) heroLiveBtn.style.display = 'none';
+                    if (heroHistoryBtn) heroHistoryBtn.style.display = '';
+                }
+            } catch (err) {
+                // Abaikan kesalahan koneksi sementara
+            }
+        }
+
+        // Sinkronkan berkala setiap 2 detik
+        window.setInterval(syncLandingLiveMatch, 2000);
     }
 })();

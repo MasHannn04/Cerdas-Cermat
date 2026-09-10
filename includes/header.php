@@ -31,6 +31,7 @@ $activeEvent = user() ? active_event() : null;
             <a href="/admin/events.php">Kegiatan</a>
             <a href="/admin/teams.php">Regu</a>
             <a href="/admin/rounds.php">Babak</a>
+            <a href="/" class="nav-landing-link" target="_blank" rel="noopener">Landing Page ↗</a>
         </nav>
         <div class="header-context">
             <?php if ($activeEvent): ?>

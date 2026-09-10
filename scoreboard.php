@@ -5,6 +5,15 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/functions.php';
 
 $matchId = filter_input(INPUT_GET, 'match_id', FILTER_VALIDATE_INT);
+
+// Jika ID tidak diisi di URL, otomatis deteksi pertandingan yang sedang aktif pada kegiatan yang aktif
+if (!$matchId) {
+    $active = current_active_match();
+    if ($active) {
+        $matchId = (int) $active['id'];
+    }
+}
+
 $payload = $matchId ? match_payload((int) $matchId) : null;
 
 if (!$payload) {
@@ -13,7 +22,7 @@ if (!$payload) {
     $bodyClass = 'public-page';
     $showAppHeader = false;
     require __DIR__ . '/includes/header.php';
-    echo '<section class="empty-state empty-state-large"><h1>Pertandingan tidak ditemukan</h1><p>Periksa kembali tautan layar publik.</p></section>';
+    echo '<section class="empty-state empty-state-large"><h1>Pertandingan tidak ditemukan</h1><p>Belum ada pertandingan aktif atau periksa kembali tautan layar publik.</p><p><a class="button button-primary" href="/">Kembali ke Beranda</a></p></section>';
     require __DIR__ . '/includes/footer.php';
     exit;
 }
@@ -31,7 +40,7 @@ require __DIR__ . '/includes/header.php';
             <h1><?= e($match['event_name']) ?></h1>
         </div>
         <div class="scoreboard-round">
-            <span><?= e($match['round_name']) ?></span>
+            <span><?= e($match['round_name']) ?> • ID Pertandingan: <strong>#<?= (int) $match['id'] ?></strong></span>
             <strong>Soal <span id="public-question"><?= (int) $match['current_question'] ?></span></strong>
         </div>
     </header>

@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($name === '') {
             flash('error', 'Nama kegiatan wajib diisi.');
         } else {
-            $statement = db()->prepare('INSERT INTO events (name, location, event_date) VALUES (?, ?, ?)');
+            $statement = db()->prepare('INSERT INTO events (name, location, event_date, status) VALUES (?, ?, ?, \'active\')');
             $statement->execute([$name, $location ?: null, $date ?: null]);
             $eventId = (int) db()->lastInsertId();
             set_active_event($eventId);
@@ -37,7 +37,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $statement->execute([$eventId]);
         if ($statement->fetchColumn()) {
             set_active_event($eventId);
+            db()->prepare("UPDATE events SET status = 'active' WHERE id = ?")->execute([$eventId]);
             flash('success', 'Kegiatan aktif diperbarui.');
+        }
+    } elseif ($action === 'deactivate') {
+        $statement = db()->prepare('SELECT id FROM events WHERE id = ?');
+        $statement->execute([$eventId]);
+        if ($statement->fetchColumn()) {
+            if (active_event_id() === $eventId) {
+                unset($_SESSION['event_id']);
+            }
+            db()->prepare("UPDATE events SET status = 'inactive' WHERE id = ? AND status <> 'finished'")->execute([$eventId]);
+            flash('success', 'Kegiatan berhasil dinonaktifkan.');
         }
     } elseif ($action === 'delete') {
         $statement = db()->prepare('DELETE FROM events WHERE id = ?');
@@ -71,6 +82,16 @@ require __DIR__ . '/../includes/header.php';
         <h1>Kegiatan</h1>
         <p>Pilih satu kegiatan aktif sebelum mengatur regu dan babak.</p>
     </div>
+    <?php if ($activeEvent = active_event()): ?>
+        <div class="header-actions">
+            <form method="post">
+                <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                <input type="hidden" name="action" value="deactivate">
+                <input type="hidden" name="event_id" value="<?= (int) $activeEvent['id'] ?>">
+                <button class="button button-secondary" type="submit">Nonaktifkan kegiatan</button>
+            </form>
+        </div>
+    <?php endif; ?>
 </header>
 
 <div class="content-grid content-grid-form">
@@ -116,19 +137,38 @@ require __DIR__ . '/../includes/header.php';
                                 <h3><?= e($event['name']) ?></h3>
                                 <?php if (active_event_id() === (int) $event['id']): ?>
                                     <span class="status-label">Aktif</span>
+                                <?php elseif ($event['status'] === 'inactive'): ?>
+                                    <span class="status-label status-label-muted">Nonaktif</span>
+                                <?php elseif ($event['status'] === 'finished'): ?>
+                                    <span class="status-label status-label-finished">Selesai</span>
                                 <?php endif; ?>
                             </div>
                             <p><?= e($event['location'] ?: 'Lokasi belum diisi') ?></p>
                             <small><?= (int) $event['team_count'] ?> regu, <?= (int) $event['round_count'] ?> babak</small>
                         </div>
                         <div class="record-actions">
-                            <?php if (active_event_id() !== (int) $event['id']): ?>
+                            <?php if (active_event_id() === (int) $event['id']): ?>
+                                <form method="post">
+                                    <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                                    <input type="hidden" name="action" value="deactivate">
+                                    <input type="hidden" name="event_id" value="<?= (int) $event['id'] ?>">
+                                    <button class="button button-secondary" type="submit">Nonaktifkan kegiatan</button>
+                                </form>
+                            <?php else: ?>
                                 <form method="post">
                                     <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
                                     <input type="hidden" name="action" value="select">
                                     <input type="hidden" name="event_id" value="<?= (int) $event['id'] ?>">
                                     <button class="button button-secondary" type="submit">Pilih kegiatan</button>
                                 </form>
+                                <?php if ($event['status'] === 'active'): ?>
+                                    <form method="post">
+                                        <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                                        <input type="hidden" name="action" value="deactivate">
+                                        <input type="hidden" name="event_id" value="<?= (int) $event['id'] ?>">
+                                        <button class="button button-secondary" type="submit">Nonaktifkan</button>
+                                    </form>
+                                <?php endif; ?>
                             <?php endif; ?>
                             <form method="post" data-confirm="Hapus kegiatan ini beserta regu dan babaknya?">
                                 <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
