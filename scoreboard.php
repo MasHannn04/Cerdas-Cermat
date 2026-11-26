@@ -65,7 +65,11 @@ require __DIR__ . '/includes/header.php';
 
     <footer class="scoreboard-footer">
         <span><?= e($match['location'] ?: 'Layar skor pertandingan') ?></span>
+        <span>&copy; <?= date('Y') ?> develop by Sisttem Informasi ITATS</span>
         <span id="public-sync-status">Terhubung ke pertandingan</span>
     </footer>
 </div>
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php
+$hideGlobalFooter = true;
+require __DIR__ . '/includes/footer.php';
+?>

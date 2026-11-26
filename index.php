@@ -482,10 +482,13 @@ require __DIR__ . '/includes/header.php';
         </div>
 
         <div class="footer-bottom">
-            <span>&copy; <?= date('Y') ?> CCI An Nuur. Sistem Cerdas Cermat Islami.</span>
-            <span>Server Lokal Aktif (PHP <?= PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION ?> & MariaDB)</span>
+            <span>&copy; <?= date('Y') ?> CCI An Nuur. develop by Sisttem Informasi ITATS</span>
+            <span>Server Lokal Aktif (PHP <?= PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION ?> &amp; MariaDB)</span>
         </div>
     </div>
 </footer>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php
+$hideGlobalFooter = true;
+require __DIR__ . '/includes/footer.php';
+?>

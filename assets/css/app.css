@@ -28,6 +28,9 @@ html { min-width: 320px; background: var(--cream); scroll-behavior: smooth; }
 
 body {
     margin: 0;
+    min-block-size: 100dvh;
+    display: flex;
+    flex-direction: column;
     color: var(--ink);
     background: var(--cream);
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
@@ -133,8 +136,8 @@ textarea:focus-visible {
 .event-context { max-width: 24ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #c7d8d1; font-size: .875rem; }
 .app-header .text-link { color: #fff; }
 
-.page-shell { width: min(var(--max-width), 94vw); margin: 0 auto; padding: 2.5rem 0 4rem; }
-.public-page .page-shell, .login-page .page-shell { width: 100%; padding: 0; }
+.page-shell { flex: 1 0 auto; width: min(var(--max-width), 94vw); margin: 0 auto; padding: 2.5rem 0 4rem; }
+.public-page .page-shell, .login-page .page-shell { width: 100%; padding: 0; display: flex; flex-direction: column; }
 
 h1, h2, h3, p { margin-top: 0; }
 h1 { max-width: 22ch; margin-bottom: .65rem; font-size: clamp(2rem, 4vw, 4rem); line-height: 1.02; letter-spacing: -.045em; }
@@ -262,8 +265,8 @@ tr.is-muted { opacity: .58; }
 .table-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: .65rem; }
 code { padding: .25rem .45rem; color: var(--emerald-dark); background: var(--emerald-soft); border-radius: 5px; font-weight: 800; }
 
-.login-page { min-height: 100vh; background: var(--emerald-dark); }
-.login-layout { min-height: 100vh; display: grid; grid-template-columns: 1.15fr .85fr; }
+.login-page { min-block-size: 100dvh; background: var(--emerald-dark); }
+.login-layout { flex: 1 0 auto; min-block-size: 0; display: grid; grid-template-columns: 1.15fr .85fr; }
 .login-intro { display: grid; align-content: end; padding: clamp(2rem, 7vw, 7rem); color: #fff; background: var(--emerald-dark); border-bottom: 12px solid var(--amber); }
 .login-intro .eyebrow { color: #f1c86d; }
 .login-intro h1 { max-width: 13ch; font-size: clamp(3rem, 7vw, 7.5rem); }
@@ -433,10 +436,10 @@ code { padding: .25rem .45rem; color: var(--emerald-dark); background: var(--eme
 .public-team-card span { color: #cbdad4; font-weight: 750; }
 .public-team-card.is-answering { color: var(--ink); background: var(--amber-soft); border: 5px solid var(--amber); border-radius: 48px 48px var(--radius-small) var(--radius-small); }
 .public-team-card.is-answering span { color: #6c541e; }
-.scoreboard-footer { display: flex; justify-content: space-between; gap: 1rem; padding-top: .8rem; color: #b7c8c1; border-top: 1px solid #49695c; }
+.scoreboard-footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; padding-top: .8rem; color: #b7c8c1; border-top: 1px solid #49695c; }
 
-.buzzer-page { min-height: 100vh; background: var(--cream); }
-.buzzer-shell { min-height: 100vh; display: grid; place-content: center; width: min(680px, 92vw); margin: 0 auto; padding: 2rem 0; }
+.buzzer-page { min-block-size: 100dvh; background: var(--cream); }
+.buzzer-shell { flex: 1 0 auto; min-block-size: 0; display: grid; place-content: center; width: min(680px, 92vw); margin: 0 auto; padding: 2rem 0; }
 .buzzer-intro { text-align: center; }
 .buzzer-intro .brand-mark { margin: 0 auto 1.5rem; }
 .buzzer-intro h1 { max-width: none; }
@@ -1521,6 +1524,35 @@ code { padding: .25rem .45rem; color: var(--emerald-dark); background: var(--eme
     margin-top: .2rem;
     line-height: 1.4;
     font-weight: 500;
+}
+
+.app-footer {
+    padding-block: 1.15rem;
+    padding-inline: 3vw;
+    border-top: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--muted);
+    font-size: .85rem;
+    text-align: center;
+}
+
+.app-footer-inner {
+    inline-size: min(var(--max-width), 94vw);
+    margin-inline: auto;
+}
+
+.login-page .app-footer {
+    background: var(--emerald-dark);
+    border-top-color: rgba(255, 255, 255, 0.14);
+    color: #cbdad4;
+}
+
+@media print {
+    .app-footer {
+        background: #fff;
+        border-top-color: #ccc;
+        color: #333;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
