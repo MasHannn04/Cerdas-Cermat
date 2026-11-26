@@ -114,13 +114,13 @@ require __DIR__ . '/includes/header.php';
     <div class="landing-hero-content">
         <div class="hero-badge">
             <span class="hero-badge-icon">🕌</span>
-            <span>Aplikasi Bel & Papan Skor Cerdas Cermat</span>
+            <span>Aplikasi Bel &amp; Papan Skor Cerdas Cermat Musholla</span>
         </div>
         <h1 class="hero-title">
-            Kunci Bel Pertama <span class="text-gradient">Tanpa Perdebatan</span>, Langsung di Layar Panggung.
+            Kunci Bel Pertama <span class="text-gradient">Tanpa Perdebatan</span>, Langsung di Layar Musholla.
         </h1>
         <p class="hero-description">
-            Satu aplikasi untuk juri di meja panggung, operator di laptop panitia, dan santri yang siap memencet bel dari HP. Saat jawaban dinilai, skor di proyektor aula langsung terbarui otomatis.
+            Satu aplikasi untuk juri, operator takmir, serta jamaah dan remaja musholla yang menekan bel dari HP. Begitu jawaban dinilai, poin di layar musholla langsung berubah otomatis.
         </p>
 
         <!-- Aksi Utama -->
@@ -130,7 +130,7 @@ require __DIR__ . '/includes/header.php';
             </a>
             <a class="button button-accent button-large" id="hero-live-btn" href="<?= $activeMatch ? '/scoreboard.php?match_id=' . (int) $activeMatch['id'] : '#' ?>" target="_blank" rel="noopener" <?= $activeMatch ? '' : 'style="display:none;"' ?>>
                 <span class="pulse-dot" aria-hidden="true"></span>
-                Buka Skor Panggung Live
+                Buka Layar Skor Live
             </a>
             <a class="button button-secondary button-large" id="hero-history-btn" href="#riwayat" <?= $activeMatch ? 'style="display:none;"' : '' ?>>
                 Lihat Rekap Pemenang
@@ -198,7 +198,7 @@ require __DIR__ . '/includes/header.php';
         <div class="section-title-wrap text-center">
             <span class="eyebrow">Pintu Masuk Cepat</span>
             <h2 id="portal-heading">Pilih Sesuai Posisi Anda di Lomba</h2>
-            <p>Peserta menekan bel dari HP masing-masing, proyektor aula menayangkan papan skor, dan panitia mengendalikan alur soal dari laptop.</p>
+            <p>Peserta menekan bel dari HP masing-masing, layar musholla menayangkan papan skor, dan panitia takmir mengendalikan jalannya soal dari laptop.</p>
         </div>
 
         <div class="portal-grid">
@@ -227,16 +227,16 @@ require __DIR__ . '/includes/header.php';
                 <span class="portal-hint">Panitia akan membagikan ID Pertandingan dan Kode Regu sebelum lomba dimulai.</span>
             </article>
 
-            <!-- Kartu 2: Layar Panggung Penonton -->
+            <!-- Kartu 2: Layar Musholla Penonton -->
             <article class="portal-card portal-card-scoreboard">
                 <div class="portal-card-header">
                     <div class="portal-icon-box">📺</div>
                     <div>
-                        <span class="portal-badge badge-role-screen">Untuk Proyektor Aula</span>
-                        <h3>Layar Skor Panggung</h3>
+                        <span class="portal-badge badge-role-screen">Untuk Layar Musholla</span>
+                        <h3>Layar Skor Musholla</h3>
                     </div>
                 </div>
-                <p>Tampilan layar penuh tanpa tombol kontrol. Angka skor besar dan countdown waktu menjawab jelas terbaca sampai baris belakang aula.</p>
+                <p>Tampilan layar penuh tanpa tombol kontrol. Angka skor besar dan hitung mundur waktu menjawab terbaca jelas sampai shaf belakang musholla.</p>
                 
                 <form action="/scoreboard.php" method="get" class="portal-quick-form" target="_blank">
                     <div class="form-row">
@@ -246,7 +246,7 @@ require __DIR__ . '/includes/header.php';
                         </label>
                     </div>
                     <button class="button button-secondary button-block" type="submit">
-                        Buka Layar Panggung &rarr;
+                        Buka Layar Skor &rarr;
                     </button>
                 </form>
                 <span class="portal-hint">Skor dan penanda hak jawab langsung berubah tanpa perlu refresh browser.</span>
@@ -290,7 +290,7 @@ require __DIR__ . '/includes/header.php';
             <span class="eyebrow">Rekam Jejak Juara</span>
             <h2 id="riwayat-heading">Riwayat Cerdas Cermat Hari Besar Islam</h2>
             <p>
-                Dokumentasi hasil babak final dari lomba pada momentum hari-hari besar Islam. Nilai akhir, podium pemenang, dan rincian keputusan dewan juri tersimpan rapi untuk arsip bersama.
+                Dokumentasi hasil lomba cerdas cermat pada kegiatan hari besar Islam di musholla. Nilai akhir, podium pemenang, dan catatan keputusan dewan juri tersimpan rapi untuk arsip takmir.
             </p>
         </div>
 
@@ -373,7 +373,7 @@ require __DIR__ . '/includes/header.php';
     <div class="section-container">
         <div class="section-title-wrap text-center">
             <span class="eyebrow">Didesain Praktis</span>
-            <h2 id="fitur-heading">Menyelesaikan Masalah Nyata di Panggung Lomba</h2>
+            <h2 id="fitur-heading">Menyelesaikan Masalah Nyata Saat Lomba di Musholla</h2>
             <p>Nggak ada lagi perdebatan siapa yang angkat tangan lebih dulu, salah hitung manual di papan tulis, atau panitia bingung meralat nilai.</p>
         </div>
 
@@ -386,8 +386,8 @@ require __DIR__ . '/includes/header.php';
 
             <article class="feature-card">
                 <div class="feature-icon-wrap">📺</div>
-                <h3>Layar Panggung Otomatis</h3>
-                <p>Skor dan jatah jawab langsung berganti di proyektor saat juri memberi keputusan. Penonton di aula langsung tahu kondisi angka tanpa nunggu operator merefresh layar.</p>
+                <h3>Layar Skor Otomatis</h3>
+                <p>Skor dan jatah jawab langsung berganti di layar musholla saat juri memberi keputusan. Jamaah yang menyaksikan langsung tahu posisi poin tanpa panitia memuat ulang halaman.</p>
             </article>
 
             <article class="feature-card">
@@ -435,14 +435,14 @@ require __DIR__ . '/includes/header.php';
             <div class="step-arrow" aria-hidden="true">&rarr;</div>
             <div class="workflow-step">
                 <div class="step-badge">2</div>
-                <h3>Buka Proyektor & Bel Regu</h3>
-                <p>Tampilkan papan skor di layar panggung aula. Bagikan tautan dan kode akses ke regu santri untuk membuka bel di HP.</p>
+                <h3>Buka Layar Skor &amp; Bel Regu</h3>
+                <p>Tampilkan papan skor di layar utama musholla. Bagikan tautan dan kode akses ke tiap regu peserta untuk membuka bel di HP.</p>
             </div>
             <div class="step-arrow" aria-hidden="true">&rarr;</div>
             <div class="workflow-step">
                 <div class="step-badge">3</div>
-                <h3>Buka Soal & Beri Nilai</h3>
-                <p>Moderator membacakan soal, operator membuka bel. Saat bel berbunyi, juri menilai jawaban dan skor panggung langsung berubah.</p>
+                <h3>Buka Soal &amp; Beri Nilai</h3>
+                <p>Moderator membacakan soal, operator membuka bel. Saat bel berbunyi, juri menilai jawaban dan skor di layar musholla langsung berubah.</p>
             </div>
         </div>
     </div>
@@ -457,7 +457,7 @@ require __DIR__ . '/includes/header.php';
                     <span class="brand-mark" aria-hidden="true">CCI</span>
                     <span class="brand-name">CCI An Nuur</span>
                 </div>
-                <p>Aplikasi cerdas cermat berbasis PHP native dan MySQL untuk perlombaan santri, madrasah, dan peringatan hari besar Islam.</p>
+                <p>Aplikasi cerdas cermat berbasis PHP native dan MySQL untuk menyemarakkan lomba keagamaan, kegiatan remaja, dan peringatan hari besar Islam di musholla.</p>
             </div>
 
             <div class="footer-links-group">

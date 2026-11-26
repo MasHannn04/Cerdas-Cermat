@@ -1,6 +1,6 @@
 # CCI An Nuur
 
-Aplikasi cerdas cermat berbasis PHP native, MySQL, HTML, CSS, dan JavaScript vanilla untuk mengelola bel digital peserta, papan skor layar panggung, serta konsol juri dan operator.
+Aplikasi cerdas cermat berbasis PHP native, MySQL, HTML, CSS, dan JavaScript vanilla untuk mengelola bel digital peserta, papan skor layar musholla, serta konsol juri dan operator.
 
 ## Kebutuhan
 
@@ -80,7 +80,7 @@ Selama pertandingan berlangsung, sistem dipakai secara bersamaan pada tiga tampi
 
 - Konsol operator (`operator.php`) dipakai panitia atau juri dari laptop untuk membuka soal, menilai jawaban, membatalkan bel, atau membatalkan nilai terakhir (`api/undo-score.php`).
 - Halaman bel peserta (`buzzer.php`) dibuka dari HP masing-masing regu dengan memasukkan ID Pertandingan (jika diminta) dan kode akses regu yang sudah terdaftar di `match_teams`.
-- Layar skor panggung (`scoreboard.php`) ditampilkan di proyektor aula untuk memperlihatkan peringkat skor langsung, nama regu yang mendapat hak jawab, serta hitung mundur waktu menjawab.
+- Layar skor musholla (`scoreboard.php`) ditampilkan di layar utama musholla untuk memperlihatkan peringkat skor langsung, nama regu yang mendapat hak jawab, serta hitung mundur waktu menjawab.
 
 Siklus untuk setiap soal berjalan berulang dengan urutan berikut.
 
@@ -97,4 +97,4 @@ Di halaman `results.php`, panitia dapat melihat peringkat akhir, memeriksa riway
 ## Catatan Operasional Penting
 
 1. Pastikan seluruh regu sudah selesai diinput dan berstatus aktif di `admin/teams.php` sebelum menekan **Siapkan pertandingan** di `operator.php`. Regu yang ditambahkan setelah pertandingan telanjur dibuat tidak otomatis masuk ke `match_teams` pada pertandingan yang sedang berjalan. Jika ada regu susulan, akhiri pertandingan berjalan terlebih dahulu lalu siapkan pertandingan baru.
-2. Pastikan hanya satu kegiatan yang berstatus aktif di `admin/events.php` selama perlombaan berlangsung agar deteksi pertandingan otomatis pada halaman bel peserta (`buzzer.php`) dan layar panggung (`scoreboard.php`) tidak tertukar dengan kegiatan lain.
+2. Pastikan hanya satu kegiatan yang berstatus aktif di `admin/events.php` selama perlombaan berlangsung agar deteksi pertandingan otomatis pada halaman bel peserta (`buzzer.php`) dan layar skor musholla (`scoreboard.php`) tidak tertukar dengan kegiatan lain.
